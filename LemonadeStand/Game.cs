@@ -8,16 +8,25 @@ namespace LemonadeStand
 {
     class Game
     {
-        Player Player1;        
+        Player Player1;
+        Recipe Recipe1;
         Store GameStore = new Store();
         Inventory PlayerInv = new Inventory();
 
         public Day[] dayArray;
         public Customer[] customerArray;
 
-        public int totalBought;
         public int currentDayIndex = 0;
         public int dayArrayMax = 0;
+
+        public int cupNum;
+        public int lemNum;
+        public int sugNum;
+        public int iceNum;
+        public int priceNum;
+        public int lemCount = 0;
+
+        public int totalBought;
 
         public void Introduction()
         {
@@ -82,12 +91,65 @@ namespace LemonadeStand
         {
             totalBought = 0;
             customerArray = new Customer[100];
+            UserInterface.NewLine();
             for (int i = 0; i < 100; i++)
             {
+                if (hasSoldOut() == true)
+                {
+                    break;
+                }
                 Customer newCustomer = new Customer();
                 customerArray[i] = newCustomer;
                 ApplyTotalDesire(customerArray[i]);
+                
+            } 
+        }
+
+        public void Consume()
+        {
+            cupNum -= 1;
+            sugNum -= 1;
+
+            //ice takes fewer customers to be consumed
+            iceNum -= 2;
+
+            //lemon takes more customers to be consumed
+            lemCount += 1;
+            if (lemCount >= 5)
+            {
+                lemNum -= 1;
+                lemCount = 0;
             }
+        }
+
+        public bool hasSoldOut()
+        {
+            bool soldOut = false;
+            if (cupNum == 0)
+            {
+                Console.WriteLine("You ran out of cups!");
+                soldOut = true;
+            }
+            if (lemNum == 0)
+            {
+                Console.WriteLine("You ran out of lemons!");
+                soldOut = true;
+            }
+            if (sugNum == 0)
+            {
+                Console.WriteLine("You ran out of sugar!");
+                soldOut = true;
+            }
+            if (iceNum == 0)
+            {
+                Console.WriteLine("You ran out of ice!");
+                soldOut = true;
+            }
+            else
+            {
+                soldOut = false;
+            }
+            return soldOut;
         }
 
         public void ApplyTempDesire(Customer cust)
@@ -143,6 +205,7 @@ namespace LemonadeStand
             {
                 cust.CustomerWillBuy = true;
                 totalBought += 1;
+                Consume();
             }
             else
             {
@@ -160,11 +223,172 @@ namespace LemonadeStand
 
         public void SetUpRecipe()
         {
+            Recipe1 = new Recipe();
             UserInterface.NewLine();
             Console.WriteLine(" --  Recipe -- ");
             UserInterface.NewLine();
+            MakeRecipe();
+        }
 
+        public void MakeRecipe()
+        {
+            useCups();
+            useLemons();
+            useSugar();
+            useIce();
+            askPrice();
+        }
 
+        public void askPrice()
+        {
+            priceNum = 0;
+            Console.WriteLine("How much should each cup of lemonade cost? Enter a value between 1 and 100 cents.");
+            Recipe1.PriceUsed = Console.ReadLine();
+
+            int myInt;
+            bool isNumerical = int.TryParse(Recipe1.PriceUsed, out myInt);
+
+            if (isNumerical)
+            {
+                priceNum = myInt;
+                myInt = 0;
+            }
+            else
+            {
+                Console.WriteLine("Please try again.");
+                askPrice();
+            }
+
+            if (priceNum == 0)
+            {
+                Console.WriteLine("That's nice of you, but your business will go under if you give away free lemonade. Try again.");
+                askPrice();
+            }
+            if (priceNum > 100)
+            {
+                Console.WriteLine("Try to be realistic. If people pay that much it's only because they pity you. Try again.");
+                askPrice();
+            }
+        }
+
+        public void useCups()
+        {
+            cupNum = 0;
+            Console.WriteLine("How many paper cups would you like to use?");
+            Recipe1.CupsUsed = Console.ReadLine();
+
+            int myInt;
+            bool isNumerical = int.TryParse(Recipe1.CupsUsed, out myInt);
+
+            if (isNumerical)
+            {
+                cupNum = myInt;
+                myInt = 0;
+            }
+            else
+            {
+                Console.WriteLine("Please try again.");
+                useCups();
+            }
+
+            if (cupNum > PlayerInv.InvSpace[0])
+            {
+                Console.WriteLine("Too many paper cups! You only have " + PlayerInv.InvSpace[0]);
+                UserInterface.NewLine();
+                useCups();
+            }
+            PlayerInv.InvSpace[0] -= cupNum;
+            UserInterface.NewLine();
+        }
+
+        public void useLemons()
+        {
+            lemNum = 0;
+            Console.WriteLine("How many lemons would you like to use?");
+            Recipe1.LemonsUsed = Console.ReadLine();
+
+            int myInt;
+            bool isNumerical = int.TryParse(Recipe1.LemonsUsed, out myInt);
+
+            if (isNumerical)
+            {
+                lemNum = myInt;
+                myInt = 0;
+            }
+            else
+            {
+                Console.WriteLine("Please try again.");
+                useLemons();
+            }
+
+            if (lemNum > PlayerInv.InvSpace[1])
+            {
+                Console.WriteLine("Too many lemons! You only have " + PlayerInv.InvSpace[1]);
+                UserInterface.NewLine();
+                useLemons();
+            }
+            PlayerInv.InvSpace[1] -= lemNum;
+            UserInterface.NewLine();
+        }
+
+        public void useSugar()
+        {
+            sugNum = 0;
+            Console.WriteLine("How many cups of sugar would you like to use?");
+            Recipe1.SugarUsed = Console.ReadLine();
+
+            int myInt;
+            bool isNumerical = int.TryParse(Recipe1.SugarUsed, out myInt);
+
+            if (isNumerical)
+            {
+                sugNum = myInt;
+                myInt = 0;
+            }
+            else
+            {
+                Console.WriteLine("Please try again.");
+                useSugar();
+            }
+
+            if (sugNum > PlayerInv.InvSpace[2])
+            {
+                Console.WriteLine("Too many cups of sugar! You only have " + PlayerInv.InvSpace[2]);
+                UserInterface.NewLine();
+                useSugar();
+            }
+            PlayerInv.InvSpace[2] -= sugNum;
+            UserInterface.NewLine();
+        }
+
+        public void useIce()
+        {
+            iceNum = 0;
+            Console.WriteLine("How many ice cubes would you like to use?");
+            Recipe1.IceUsed = Console.ReadLine();
+
+            int myInt;
+            bool isNumerical = int.TryParse(Recipe1.IceUsed, out myInt);
+
+            if (isNumerical)
+            {
+                iceNum = myInt;
+                myInt = 0;
+            }
+            else
+            {
+                Console.WriteLine("Please try again.");
+                useIce();
+            }
+
+            if (iceNum > PlayerInv.InvSpace[3])
+            {
+                Console.WriteLine("Too many ice cubes! You only have " + PlayerInv.InvSpace[3]);
+                UserInterface.NewLine();
+                useIce();
+            }
+            PlayerInv.InvSpace[3] -= iceNum;
+            UserInterface.NewLine();
         }
 
         public void GameLoop()
@@ -181,8 +405,8 @@ namespace LemonadeStand
                 AskIfBuy();
                 SetUpRecipe();
                 SetUpCustomers();
-                
-                Console.WriteLine(totalBought+" Total customers today!");
+                Player1.Wallet += Convert.ToDouble(priceNum) * Convert.ToDouble(totalBought) / 100;
+                Console.WriteLine(totalBought + " Total customers today! You now have $"+Player1.Wallet);
                 //other game methods
 
                 NextDay();
@@ -246,14 +470,15 @@ namespace LemonadeStand
             Player1.Wallet -= GameStore.storePrices[product];
             PlayerInv.ChangeInv(product);
             Console.WriteLine("You buy 10 " + GameStore.storeOptions[product]);
-            Console.WriteLine("You now have $" + Player1.Wallet);
+            checkInv();
             UserInterface.NewLine();
             BuyOptions();
         }
 
         public void checkInv()
         {
-            Console.WriteLine("You have " +
+            Console.WriteLine("You have $" +
+            Player1.Wallet + ", " +
             PlayerInv.InvSpace[0] +" paper cups, " +
             PlayerInv.InvSpace[1] + " lemons, " +
             PlayerInv.InvSpace[2] + " cups of sugar, and "+
