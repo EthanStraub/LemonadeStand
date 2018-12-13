@@ -10,14 +10,24 @@ namespace LemonadeStand
     {
         public int dayNum = 0;
         public int time;
-        public string currentForecast;
-        public string currentWeather;
 
-        //Weather dayWeather = new Weather();
+        private int currentTemp;
+        private string currentForecast;
+        private string currentWeather;
 
-        //dayWeather.makeWeather();
+        public int CurrentTemp { get { return currentTemp; } set { currentTemp = value; } }
+        public string CurrentForecast { get { return currentForecast; } set { currentForecast = value; } }
+        public string CurrentWeather { get { return currentWeather; } set { currentWeather = value; } }
 
-        //currentForecast = dayWeather.forecast
-        //currentWeather = dayWeather.Weather
+        Weather dayWeather = new Weather();
+
+        public void ApplyDayWeather()
+        {
+            dayWeather.makeWeather();
+            currentForecast = dayWeather.Forecast;
+            currentWeather = dayWeather.WeatherType;
+            currentTemp = dayWeather.Temp;
+        }
+        
     }
 }

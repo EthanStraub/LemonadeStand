@@ -8,6 +8,8 @@ namespace LemonadeStand
 {
     class Player
     {
-        public double Wallet = 20.00;
+        private double wallet = 20.00;
+
+        public double Wallet { get { return wallet; } set { wallet = value; } }
     }
 }

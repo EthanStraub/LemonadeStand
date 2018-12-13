@@ -13,6 +13,9 @@ namespace LemonadeStand
         Inventory PlayerInv = new Inventory();
 
         public Day[] dayArray;
+        public Customer[] customerArray;
+
+        public int totalBought;
         public int currentDayIndex = 0;
         public int dayArrayMax = 0;
 
@@ -27,7 +30,6 @@ namespace LemonadeStand
         {
             Console.WriteLine("How many weeks would you like to run the stand for?");
             Console.WriteLine("Options: '1' for one week, '2' for two weeks, and '3' for three weeks.");
-
 
             string prompt = Console.ReadLine();
             if (prompt == "1")
@@ -58,23 +60,111 @@ namespace LemonadeStand
 
         public void AddDays()
         {
-            for (int i = 0; i > dayArray.Length; i++)
+            for (int i = 0; i < dayArray.Length; i++)
             {
                 Day newDay = new Day();
                 dayArray[i] = newDay;
+                dayArray[i].dayNum = i+1;
             }
-            
         }
 
         public void NextDay()
         {
-            currentDayIndex +=1;
+            currentDayIndex += 1;
         }
-
 
         public void SetUpPlayers()
         {
             Player1 = new Player();
+        }
+
+        public void SetUpCustomers()
+        {
+            totalBought = 0;
+            customerArray = new Customer[100];
+            for (int i = 0; i < 100; i++)
+            {
+                Customer newCustomer = new Customer();
+                customerArray[i] = newCustomer;
+                ApplyTotalDesire(customerArray[i]);
+            }
+        }
+
+        public void ApplyTempDesire(Customer cust)
+        {
+            if (dayArray[currentDayIndex].CurrentTemp >= 50 && dayArray[currentDayIndex].CurrentTemp < 70)
+            {
+                cust.SetDesire(50, 91);
+            }
+            else if (dayArray[currentDayIndex].CurrentTemp >= 70 && dayArray[currentDayIndex].CurrentTemp < 90)
+            {
+                cust.SetDesire(55, 96);
+            }
+            else if (dayArray[currentDayIndex].CurrentTemp >= 90 && dayArray[currentDayIndex].CurrentTemp < 100)
+            {
+                cust.SetDesire(60, 101);
+            }
+        }
+
+        public void ApplyWeatherDesire(Customer cust)
+        {
+            if (dayArray[currentDayIndex].CurrentWeather == "Sunny")
+            {
+                cust.CustomerDesire += 10;
+            }
+            else if (dayArray[currentDayIndex].CurrentWeather == "Overcast")
+            {
+                //do nothing
+            }
+            else if (dayArray[currentDayIndex].CurrentWeather == "Cloudy")
+            {
+                cust.CustomerDesire -= 5;
+            }
+            else if (dayArray[currentDayIndex].CurrentWeather == "Rain")
+            {
+                cust.CustomerDesire -= 10;
+            }
+        }
+
+        public void ApplyCustomerBought(Customer cust)
+        {
+            //corner cases
+            if (cust.CustomerDesire <= 0)
+            {
+                cust.CustomerDesire = 0;
+            }
+            else if (cust.CustomerDesire >= 100)
+            {
+                cust.CustomerDesire = 100;
+            }
+
+            //check if wants to buy
+            if (cust.CustomerDesire >= 80)
+            {
+                cust.CustomerWillBuy = true;
+                totalBought += 1;
+            }
+            else
+            {
+                cust.CustomerWillBuy = false;
+            }
+        }
+
+        public void ApplyTotalDesire(Customer cust)
+        {
+            cust.CustomerDesire = 0;
+            ApplyTempDesire(cust);
+            ApplyWeatherDesire(cust);
+            ApplyCustomerBought(cust);
+        }
+
+        public void SetUpRecipe()
+        {
+            UserInterface.NewLine();
+            Console.WriteLine(" --  Recipe -- ");
+            UserInterface.NewLine();
+
+
         }
 
         public void GameLoop()
@@ -84,10 +174,20 @@ namespace LemonadeStand
             AskWeek();
             AddDays();
 
-            for ( int i = 0; i > dayArrayMax; i++)
+            while (currentDayIndex < dayArrayMax)
             {
-                NextDay();
+                
+                dayArray[currentDayIndex].ApplyDayWeather();
                 AskIfBuy();
+                SetUpRecipe();
+                SetUpCustomers();
+                
+                Console.WriteLine(totalBought+" Total customers today!");
+                //other game methods
+
+                NextDay();
+                UserInterface.NewLine();
+
             }
             Console.WriteLine("TEST GAME OVER");
         }
@@ -97,7 +197,7 @@ namespace LemonadeStand
             bool isInputValid = false;
             while (!isInputValid)
             {
-                Console.WriteLine("Day "+ dayArray[currentDayIndex].dayNum);
+                Console.WriteLine("Day "+ dayArray[currentDayIndex].dayNum+". Forecast: "+ dayArray[currentDayIndex].CurrentForecast+", Temperature: "+ dayArray[currentDayIndex].CurrentTemp);
                 Console.WriteLine("Would you like to go to the store before you open your stand for the day? y/n");
                 string doesBuy = Console.ReadLine();
 

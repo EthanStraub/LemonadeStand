@@ -9,17 +9,8 @@ namespace LemonadeStand
     class Inventory
     {
         private int[] invSpace = { 0, 0, 0, 0 };
-        public int[] InvSpace
-        {
-            get
-            {
-                return invSpace;
-            }
-            set
-            {
-                invSpace = value;
-            }
-        }
+        public int[] InvSpace { get { return invSpace; } set { invSpace = value; } }
+
         public void ChangeInv(int newItem)
         {
             InvSpace[newItem] += 10;   

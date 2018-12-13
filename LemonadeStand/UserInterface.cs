@@ -8,6 +8,8 @@ namespace LemonadeStand
 {
     public static class UserInterface
     {
+        public static Random random = new Random();
+
         public static void NewLine()
         {
             Console.WriteLine("");
@@ -15,7 +17,6 @@ namespace LemonadeStand
 
         public static int RandomNumber(int min, int max)
         {
-            Random random = new Random();
             return random.Next(min, max);
         }
     }

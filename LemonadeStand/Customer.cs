@@ -8,18 +8,18 @@ namespace LemonadeStand
 {
     class Customer
     {
-        private bool customerBuys;
         
-        public bool CustomerBuys
+        private int customerDesire = 0;
+        private int customerPriceBracket = 0;
+        private bool customerWillBuy = false;
+
+        public int CustomerDesire { get { return customerDesire; } set { customerDesire = value; } }
+        public int CustomerPriceBracket { get { return customerPriceBracket; } set { customerPriceBracket = value; } }
+        public bool CustomerWillBuy { get { return customerWillBuy; } set { customerWillBuy = value; } }
+
+        public void SetDesire(int rand1, int rand2)
         {
-            get
-            {
-                return customerBuys;
-            }
-            set
-            {
-                customerBuys = value;
-            }
+            CustomerDesire = UserInterface.RandomNumber(rand1, rand2);
         }
     }
 }

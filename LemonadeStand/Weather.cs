@@ -8,15 +8,17 @@ namespace LemonadeStand
 {
     class Weather
     {
-
-        public int temp;
+        
         public int weatherNum;
         public int forecastNum;
-        public string weather;
-        public string forecast;
-        
 
+        private int temp;
+        private string weatherType;
+        private string forecast;
         
+        public int Temp {  get { return temp; } set { temp = value; } }
+        public string WeatherType {  get { return weatherType; } set { weatherType = value; } }
+        public string Forecast {  get { return forecast; } set { forecast = value; } }
 
         public void makeWeather()
         {
@@ -24,7 +26,7 @@ namespace LemonadeStand
             assignForecast();
 
             forecast = forecastConditions[forecastNum];
-            weather = weatherConditions[weatherNum];
+            weatherType = weatherConditions[weatherNum];
         }
         
         public void assignWeather()
