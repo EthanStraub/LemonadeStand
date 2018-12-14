@@ -18,9 +18,9 @@ namespace LemonadeStand
         public double[] storePrices =
         {
             0.25,
-            1.00,
+            5.00,
             0.50,
-            1.20,
+            1.00,
         };
         
     }

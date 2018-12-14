@@ -13,7 +13,14 @@ namespace LemonadeStand
 
         public void ChangeInv(int newItem)
         {
-            InvSpace[newItem] += 10;   
+            if (newItem == 3)
+            {
+                InvSpace[newItem] += 100;
+            }
+            else
+            {
+                InvSpace[newItem] += 10;
+            }
         }
     }
 }

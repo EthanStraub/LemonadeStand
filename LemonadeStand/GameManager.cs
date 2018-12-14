@@ -25,6 +25,7 @@ namespace LemonadeStand
 
         public void RestartGame()
         {
+            Console.WriteLine("Game over! Type 'restart' to restart, or 'quit' to quit!");
             bool isInputValid = false;
             while (!isInputValid)
             {
@@ -33,6 +34,7 @@ namespace LemonadeStand
                 {
                     case "restart":
                         isInputValid = true;
+                        StartGame();
                         break;
                     case "quit":
                         isInputValid = true;

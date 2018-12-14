@@ -19,6 +19,9 @@ namespace LemonadeStand
         public string CurrentForecast { get { return currentForecast; } set { currentForecast = value; } }
         public string CurrentWeather { get { return currentWeather; } set { currentWeather = value; } }
 
+        private double initialWallet;
+        public double InitialWallet { get { return initialWallet; } set { initialWallet = value; } }
+
         Weather dayWeather = new Weather();
 
         public void ApplyDayWeather()

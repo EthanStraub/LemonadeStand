@@ -18,16 +18,9 @@ namespace LemonadeStand
 
         public int currentDayIndex = 0;
         public int dayArrayMax = 0;
-
-        public int cupNum;
-        public int lemNum;
-        public int sugNum;
-        public int iceNum;
-        public int priceNum;
-        public int lemCount = 0;
-
         public int totalBought;
-
+        public bool bankruptcyEnd = false;
+        public double prevWallet;
         public void Introduction()
         {
             UserInterface.NewLine();
@@ -77,8 +70,43 @@ namespace LemonadeStand
             }
         }
 
+        public void LeftOvers()
+        {
+            if (Recipe1.CupNum > 0)
+            {
+                Console.WriteLine("You had " + Recipe1.CupNum + " paper cup(s) left over! You put them in your inventory.");
+            }
+            if (Recipe1.LemNum > 0)
+            {
+                Console.WriteLine("You had " + Recipe1.LemNum + " lemon(s) left over! You put them in your inventory.");
+            }
+            if (Recipe1.SugNum > 0)
+            {
+                Console.WriteLine("You had " + Recipe1.SugNum + " cup(s) of sugar left over! You put them in your inventory.");
+            }
+
+            PlayerInv.InvSpace[0] += Recipe1.CupNum;
+            PlayerInv.InvSpace[1] += Recipe1.LemNum;
+            PlayerInv.InvSpace[2] += Recipe1.SugNum;
+
+            //there will never be left over ice
+            if (Recipe1.IceNum > 0)
+            {
+                Melt();
+            }
+
+            UserInterface.NewLine();
+        }
+        public void Melt()
+        {
+            Console.WriteLine("All your remaining ice cubes melted!");
+            Recipe1.IceNum = 0;
+            PlayerInv.InvSpace[3] = 0;
+        }
+
         public void NextDay()
         {
+            LeftOvers();
             currentDayIndex += 1;
         }
 
@@ -94,60 +122,97 @@ namespace LemonadeStand
             UserInterface.NewLine();
             for (int i = 0; i < 100; i++)
             {
-                if (hasSoldOut() == true)
+                if (HasSoldOut() == true)
                 {
-                    break;
+                    continue;
                 }
-                Customer newCustomer = new Customer();
-                customerArray[i] = newCustomer;
-                ApplyTotalDesire(customerArray[i]);
-                
-            } 
+                else
+                {
+                    Customer newCustomer = new Customer();
+                    customerArray[i] = newCustomer;
+                    ApplyTotalDesire(customerArray[i]);
+                }
+
+            }
+            SoldOutText();
+            ResetItems();
         }
 
         public void Consume()
         {
-            cupNum -= 1;
-            sugNum -= 1;
+            Recipe1.CupNum -= 1;
+            Recipe1.SugNum -= 1;
 
             //ice takes fewer customers to be consumed
-            iceNum -= 2;
+            Recipe1.IceNum -= 2;
 
             //lemon takes more customers to be consumed
-            lemCount += 1;
-            if (lemCount >= 5)
+            Recipe1.LemCount += 1;
+            if (Recipe1.LemCount >= 5)
             {
-                lemNum -= 1;
-                lemCount = 0;
+                Recipe1.LemNum -= 1;
+                Recipe1.LemCount = 0;
             }
         }
 
-        public bool hasSoldOut()
+        public void ResetItems()
         {
-            bool soldOut = false;
-            if (cupNum == 0)
+            if (Recipe1.CupNum < 0)
             {
-                Console.WriteLine("You ran out of cups!");
-                soldOut = true;
+                Recipe1.CupNum = 0;
             }
-            if (lemNum == 0)
+            if (Recipe1.LemNum < 0)
+            {
+                Recipe1.LemNum = 0;
+            }
+            if (Recipe1.SugNum < 0)
+            {
+                Recipe1.SugNum = 0;
+            }
+            if (Recipe1.IceNum < 0)
+            {
+                Recipe1.IceNum = 0;
+            }
+        }
+
+        public void SoldOutText()
+        {
+            if (Recipe1.CupNum == 0)
+            {
+                Console.WriteLine("You ran out of paper cups!");
+            }
+            if (Recipe1.LemNum == 0)
             {
                 Console.WriteLine("You ran out of lemons!");
+            }
+            if (Recipe1.SugNum == 0)
+            {
+                Console.WriteLine("You ran out of cups of sugar!");
+            }
+            if (Recipe1.IceNum == 0)
+            {
+                Console.WriteLine("You ran out of ice cubes!");
+            }
+        }
+
+        public bool HasSoldOut()
+        {
+            bool soldOut = false;
+            if (Recipe1.CupNum == 0)
+            {
                 soldOut = true;
             }
-            if (sugNum == 0)
+            if (Recipe1.LemNum == 0)
             {
-                Console.WriteLine("You ran out of sugar!");
                 soldOut = true;
             }
-            if (iceNum == 0)
+            if (Recipe1.SugNum == 0)
             {
-                Console.WriteLine("You ran out of ice!");
                 soldOut = true;
             }
-            else
+            if (Recipe1.IceNum == 0)
             {
-                soldOut = false;
+                soldOut = true;
             }
             return soldOut;
         }
@@ -188,6 +253,18 @@ namespace LemonadeStand
             }
         }
 
+        public void ApplyWalletDesire(Customer cust)
+        {
+            if (Recipe1.PriceNum >= 70)
+            {
+                cust.CustomerDesire -= 5;
+            }
+            else if (Recipe1.PriceNum <= 30)
+            {
+                cust.CustomerDesire += 5;
+            }
+        }
+
         public void ApplyCustomerBought(Customer cust)
         {
             //corner cases
@@ -218,6 +295,7 @@ namespace LemonadeStand
             cust.CustomerDesire = 0;
             ApplyTempDesire(cust);
             ApplyWeatherDesire(cust);
+            ApplyWalletDesire(cust);
             ApplyCustomerBought(cust);
         }
 
@@ -232,16 +310,17 @@ namespace LemonadeStand
 
         public void MakeRecipe()
         {
-            useCups();
-            useLemons();
-            useSugar();
-            useIce();
-            askPrice();
+            Recipe1.LemCount = 0;
+            UseCups();
+            UseLemons();
+            UseSugar();
+            UseIce();
+            AskPrice();
         }
 
-        public void askPrice()
+        public void AskPrice()
         {
-            priceNum = 0;
+            Recipe1.PriceNum = 0;
             Console.WriteLine("How much should each cup of lemonade cost? Enter a value between 1 and 100 cents.");
             Recipe1.PriceUsed = Console.ReadLine();
 
@@ -250,31 +329,31 @@ namespace LemonadeStand
 
             if (isNumerical)
             {
-                priceNum = myInt;
+                Recipe1.PriceNum = myInt;
                 myInt = 0;
             }
             else
             {
                 Console.WriteLine("Please try again.");
-                askPrice();
+                AskPrice();
             }
 
-            if (priceNum == 0)
+            if (Recipe1.PriceNum == 0)
             {
                 Console.WriteLine("That's nice of you, but your business will go under if you give away free lemonade. Try again.");
-                askPrice();
+                AskPrice();
             }
-            if (priceNum > 100)
+            if (Recipe1.PriceNum > 100)
             {
                 Console.WriteLine("Try to be realistic. If people pay that much it's only because they pity you. Try again.");
-                askPrice();
+                AskPrice();
             }
         }
 
-        public void useCups()
+        public void UseCups()
         {
-            cupNum = 0;
-            Console.WriteLine("How many paper cups would you like to use?");
+            Recipe1.CupNum = 0;
+            Console.WriteLine($"How many paper cups would you like to use? You have " + PlayerInv.InvSpace[0]);
             Recipe1.CupsUsed = Console.ReadLine();
 
             int myInt;
@@ -282,29 +361,29 @@ namespace LemonadeStand
 
             if (isNumerical)
             {
-                cupNum = myInt;
+                Recipe1.CupNum = myInt;
                 myInt = 0;
             }
             else
             {
                 Console.WriteLine("Please try again.");
-                useCups();
+                UseCups();
             }
 
-            if (cupNum > PlayerInv.InvSpace[0])
+            if (Recipe1.CupNum > PlayerInv.InvSpace[0])
             {
                 Console.WriteLine("Too many paper cups! You only have " + PlayerInv.InvSpace[0]);
                 UserInterface.NewLine();
-                useCups();
+                UseCups();
             }
-            PlayerInv.InvSpace[0] -= cupNum;
+            PlayerInv.InvSpace[0] -= Recipe1.CupNum;
             UserInterface.NewLine();
         }
 
-        public void useLemons()
+        public void UseLemons()
         {
-            lemNum = 0;
-            Console.WriteLine("How many lemons would you like to use?");
+            Recipe1.LemNum = 0;
+            Console.WriteLine("How many lemons would you like to use? You have " + PlayerInv.InvSpace[1]);
             Recipe1.LemonsUsed = Console.ReadLine();
 
             int myInt;
@@ -312,29 +391,29 @@ namespace LemonadeStand
 
             if (isNumerical)
             {
-                lemNum = myInt;
+                Recipe1.LemNum = myInt;
                 myInt = 0;
             }
             else
             {
                 Console.WriteLine("Please try again.");
-                useLemons();
+                UseLemons();
             }
 
-            if (lemNum > PlayerInv.InvSpace[1])
+            if (Recipe1.LemNum > PlayerInv.InvSpace[1])
             {
                 Console.WriteLine("Too many lemons! You only have " + PlayerInv.InvSpace[1]);
                 UserInterface.NewLine();
-                useLemons();
+                UseLemons();
             }
-            PlayerInv.InvSpace[1] -= lemNum;
+            PlayerInv.InvSpace[1] -= Recipe1.LemNum;
             UserInterface.NewLine();
         }
 
-        public void useSugar()
+        public void UseSugar()
         {
-            sugNum = 0;
-            Console.WriteLine("How many cups of sugar would you like to use?");
+            Recipe1.SugNum = 0;
+            Console.WriteLine("How many cups of sugar would you like to use? You have " + PlayerInv.InvSpace[2]);
             Recipe1.SugarUsed = Console.ReadLine();
 
             int myInt;
@@ -342,29 +421,29 @@ namespace LemonadeStand
 
             if (isNumerical)
             {
-                sugNum = myInt;
+                Recipe1.SugNum = myInt;
                 myInt = 0;
             }
             else
             {
                 Console.WriteLine("Please try again.");
-                useSugar();
+                UseSugar();
             }
 
-            if (sugNum > PlayerInv.InvSpace[2])
+            if (Recipe1.SugNum > PlayerInv.InvSpace[2])
             {
                 Console.WriteLine("Too many cups of sugar! You only have " + PlayerInv.InvSpace[2]);
                 UserInterface.NewLine();
-                useSugar();
+                UseSugar();
             }
-            PlayerInv.InvSpace[2] -= sugNum;
+            PlayerInv.InvSpace[2] -= Recipe1.SugNum;
             UserInterface.NewLine();
         }
 
-        public void useIce()
+        public void UseIce()
         {
-            iceNum = 0;
-            Console.WriteLine("How many ice cubes would you like to use?");
+            Recipe1.IceNum = 0;
+            Console.WriteLine("How many ice cubes would you like to use? You have " + PlayerInv.InvSpace[3]);
             Recipe1.IceUsed = Console.ReadLine();
 
             int myInt;
@@ -372,22 +451,22 @@ namespace LemonadeStand
 
             if (isNumerical)
             {
-                iceNum = myInt;
+                Recipe1.IceNum = myInt;
                 myInt = 0;
             }
             else
             {
                 Console.WriteLine("Please try again.");
-                useIce();
+                UseIce();
             }
 
-            if (iceNum > PlayerInv.InvSpace[3])
+            if (Recipe1.IceNum > PlayerInv.InvSpace[3])
             {
                 Console.WriteLine("Too many ice cubes! You only have " + PlayerInv.InvSpace[3]);
                 UserInterface.NewLine();
-                useIce();
+                UseIce();
             }
-            PlayerInv.InvSpace[3] -= iceNum;
+            PlayerInv.InvSpace[3] -= Recipe1.IceNum;
             UserInterface.NewLine();
         }
 
@@ -403,21 +482,46 @@ namespace LemonadeStand
                 
                 dayArray[currentDayIndex].ApplyDayWeather();
                 AskIfBuy();
+                if (bankruptcyEnd) { break; }
                 SetUpRecipe();
                 SetUpCustomers();
-                Player1.Wallet += Convert.ToDouble(priceNum) * Convert.ToDouble(totalBought) / 100;
-                Console.WriteLine(totalBought + " Total customers today! You now have $"+Player1.Wallet);
-                //other game methods
-
+                ListProfits();
                 NextDay();
                 UserInterface.NewLine();
-
             }
-            Console.WriteLine("TEST GAME OVER");
+        }
+
+        public void ListProfits()
+        {
+            Console.WriteLine("Today's weather was: "+dayArray[currentDayIndex].CurrentWeather);
+            double listedTotal = 0;
+            prevWallet = dayArray[currentDayIndex].InitialWallet;
+
+            Player1.Wallet += Convert.ToDouble(Recipe1.PriceNum) * Convert.ToDouble(totalBought) / 100;
+            Console.WriteLine(totalBought + " Total customer(s) today! You now have $" + Player1.Wallet);
+            if ( (Player1.Wallet - prevWallet) > 0)
+            {
+                Console.WriteLine("Today you made a profit of $" + (Player1.Wallet - prevWallet) + "!");
+            }
+            else if ( (Player1.Wallet - prevWallet) < 0)
+            {
+                Console.WriteLine("Today you lost $"+ (-1* (Player1.Wallet - prevWallet) ) + "!" );
+            }
+            if (Player1.Wallet == prevWallet)
+            {
+                Console.WriteLine("You made no money today!");
+            }
+            Player1.TotalProfits.Add(Player1.Wallet - prevWallet);
+            foreach (double profit in Player1.TotalProfits)
+            {
+                listedTotal += profit;
+            }
+            Console.WriteLine("Your total profit so far is $"+listedTotal);
         }
 
         public void AskIfBuy()
         {
+            dayArray[currentDayIndex].InitialWallet = Player1.Wallet;
             bool isInputValid = false;
             while (!isInputValid)
             {
@@ -437,7 +541,6 @@ namespace LemonadeStand
                         isInputValid = true;
                         UserInterface.NewLine();
                         Console.WriteLine("You start the day without going to the store.");
-                        StartDay();
                         break;
                     default:
                         Console.WriteLine("Please try again.");
@@ -447,17 +550,12 @@ namespace LemonadeStand
             
         }
 
-        public void StartDay()
-        {
-
-        }
-
         public void AskWhatBuy()
         {    
             Console.WriteLine("'p' for 10 paper cups ($" + GameStore.storePrices[0] + ").");
             Console.WriteLine("'l' for 10 lemons ($" + GameStore.storePrices[1] + ").");
             Console.WriteLine("'s' for 10 cups of sugar ($" + GameStore.storePrices[2] + ").");
-            Console.WriteLine("'i' for 10 ice cubes ($" + GameStore.storePrices[3] + ").");
+            Console.WriteLine("'i' for 100 ice cubes ($" + GameStore.storePrices[3] + ").");
             Console.WriteLine("'inv' to check your inventory.");
             Console.WriteLine("'exit' to exit the store.");
             Console.WriteLine("'options' to see this list again.");
@@ -465,24 +563,67 @@ namespace LemonadeStand
             BuyOptions();
         }
 
+        public void Bankruptcy()
+        {
+            bool isInputValid = false;
+            while (!isInputValid)
+            {
+                Console.WriteLine("Will you declare bankruptcy and end the game? y/n");
+                string doesDeclare = Console.ReadLine();
+                switch (doesDeclare)
+                {
+                    case "y":
+                        Console.WriteLine("You have declared bankruptcy!");
+                        bankruptcyEnd = true;
+                        isInputValid = true;
+                        break;
+                    case "n":
+                        Console.WriteLine("You leave the store and open up your stand for the day.");
+                        Player1.Wallet = 0;
+                        bankruptcyEnd = false;
+                        isInputValid = true;
+                        break;
+                    default:
+                        Console.WriteLine("Please try again.");
+                        bankruptcyEnd = false;
+                        break;
+                }
+            }
+        }
+
         public void Purchase(int product)
         {
-            Player1.Wallet -= GameStore.storePrices[product];
-            PlayerInv.ChangeInv(product);
-            Console.WriteLine("You buy 10 " + GameStore.storeOptions[product]);
-            checkInv();
-            UserInterface.NewLine();
-            BuyOptions();
+            if (Player1.Wallet - GameStore.storePrices[product] <= 0)
+            {
+                Console.WriteLine("You have no more money!");
+                Bankruptcy();
+            }
+            else
+            {
+                Player1.Wallet -= GameStore.storePrices[product];
+                PlayerInv.ChangeInv(product);
+                if (product == 3)
+                {
+                    Console.WriteLine("You buy 100 " + GameStore.storeOptions[product]);
+                }
+                else
+                {
+                    Console.WriteLine("You buy 10 " + GameStore.storeOptions[product]);
+                }
+                checkInv();
+                UserInterface.NewLine();
+                BuyOptions();
+            }
         }
 
         public void checkInv()
         {
             Console.WriteLine("You have $" +
             Player1.Wallet + ", " +
-            PlayerInv.InvSpace[0] +" paper cups, " +
-            PlayerInv.InvSpace[1] + " lemons, " +
-            PlayerInv.InvSpace[2] + " cups of sugar, and "+
-            PlayerInv.InvSpace[3] + " ice cubes.");
+            PlayerInv.InvSpace[0] + " paper cup(s), " +
+            PlayerInv.InvSpace[1] + " lemon(s), " +
+            PlayerInv.InvSpace[2] + " cup(s) of sugar, and " +
+            PlayerInv.InvSpace[3] + " ice cube(s).");
             UserInterface.NewLine();
         }
 
@@ -524,7 +665,6 @@ namespace LemonadeStand
                         isInputValid = true;
                         Console.WriteLine("You leave the store and open up your stand for the day.");
                         UserInterface.NewLine();
-                        StartDay();
                         break;
                     default:
                         Console.WriteLine("Please try again.");
