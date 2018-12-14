@@ -26,7 +26,7 @@ namespace LemonadeStand
 
         public void ApplyDayWeather()
         {
-            dayWeather.makeWeather();
+            dayWeather.MakeWeather();
             currentForecast = dayWeather.Forecast;
             currentWeather = dayWeather.WeatherType;
             currentTemp = dayWeather.Temp;

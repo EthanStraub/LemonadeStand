@@ -15,11 +15,11 @@ namespace LemonadeStand
         {
             if (newItem == 3)
             {
-                InvSpace[newItem] += 100;
+                invSpace[newItem] += 100;
             }
             else
             {
-                InvSpace[newItem] += 10;
+                invSpace[newItem] += 10;
             }
         }
     }

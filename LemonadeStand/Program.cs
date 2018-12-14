@@ -10,12 +10,10 @@ namespace LemonadeStand
     {
         static void Main(string[] args)
         {
-            
             Console.BackgroundColor = ConsoleColor.DarkMagenta;
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
             
-
             GameManager NewManager = new GameManager();
             NewManager.StartManager();
         }
