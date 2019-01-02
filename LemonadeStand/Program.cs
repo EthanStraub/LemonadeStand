@@ -8,6 +8,14 @@ namespace LemonadeStand
 {
     class Program
     {
+        internal GameManager GameManager
+        {
+            get => default(GameManager);
+            set
+            {
+            }
+        }
+
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.DarkMagenta;

@@ -22,6 +22,54 @@ namespace LemonadeStand
         public bool bankruptcyEnd = false;
         public double prevWallet;
 
+        internal Player Player
+        {
+            get => default(Player);
+            set
+            {
+            }
+        }
+
+        internal Inventory Inventory
+        {
+            get => default(Inventory);
+            set
+            {
+            }
+        }
+
+        public Day Day
+        {
+            get => default(Day);
+            set
+            {
+            }
+        }
+
+        public Store Store
+        {
+            get => default(Store);
+            set
+            {
+            }
+        }
+
+        internal Customer Customer
+        {
+            get => default(Customer);
+            set
+            {
+            }
+        }
+
+        internal Recipe Recipe
+        {
+            get => default(Recipe);
+            set
+            {
+            }
+        }
+
         //Game introduction text
         public void Introduction()
         {

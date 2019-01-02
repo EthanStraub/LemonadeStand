@@ -31,6 +31,13 @@ namespace LemonadeStand
             currentWeather = dayWeather.WeatherType;
             currentTemp = dayWeather.Temp;
         }
-        
+
+        internal Weather Weather
+        {
+            get => default(Weather);
+            set
+            {
+            }
+        }
     }
 }

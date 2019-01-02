@@ -11,6 +11,14 @@ namespace LemonadeStand
         Game gameOne;
         bool isRunning = true;
 
+        internal Game Game
+        {
+            get => default(Game);
+            set
+            {
+            }
+        }
+
         public Game MakeGame()
         {
             return new Game();
